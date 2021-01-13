@@ -12,10 +12,26 @@ export default class Stock extends ScreenContainer {
             amount: '0',
             timeCountDown: '0',
             isOrder: false,
+            isVisible: false,
+            index: 0,
+            routes: [
+                { key: 'order', title: 'Order' },
+                { key: 'today', title: 'Today' },
+                { key: 'month', title: 'Month' },
+                { key: 'all', title: 'All' },
+            ],
+            dataOrder: [],
+            isOrderTable: false,
+            betSymbol: 'BTCUSDT',
         };
         this.user = { subID: 'LZTFN141980', token: '0KSnwgyCA4e8mSlFQurmTLpmuIRRdTTiUlAcGASY' };
         this.client = new Colyseus.Client('wss://socketnew.redboxtrade.com/');
-    }
+        this.room = null;
+    };
+
+    handleTabsChange = value => {
+        this.setState({ index: value });
+    };
 
     onRef = ref => {
         if (ref) {
@@ -23,14 +39,23 @@ export default class Stock extends ScreenContainer {
         }
     };
 
+    handleTurnOffOrderTable = () => {
+        this.setState({
+            isOrderTable: false,
+        })
+    }
+
     onData = param => { };
 
     initChart = room => {
         room.onMessage((message) => {
-
+            if (message.time === 1) {
+                this.setState({
+                    dataOrder: [],
+                })
+            }
             switch (message.action) {
                 case 'connect':
-
                     break;
                 case 'sv-payment':
 
@@ -39,6 +64,9 @@ export default class Stock extends ScreenContainer {
 
                     break;
                 case 'main':
+                    if (message.time === 1) {
+                        room.send({ action: 'payment' });
+                    }
                     var today = new Date();
                     var s = today.getSeconds();
                     var _time = Helpers.toTimestamp(Helpers.getTime()) + 30000;
@@ -607,23 +635,37 @@ export default class Stock extends ScreenContainer {
 
                     break;
                 case 'order':
+                    this.setState({
+                        dataOrder: [message.data, ...this.state.dataOrder],
+                    })
+
                     break;
                 case 'alert':
+                    console.log('alert', message)
                     break;
             }
         });
     };
 
-    handleBuy = () => {
-
-    }
-
-    handleSell = () => {
-
+    handleOrder = type => {
+        // console.log(this.room);
+        const { betSymbol, amount } = this.state;
+        this.room.send({
+            action: 'userBet',
+            data: {
+                symbol: betSymbol,
+                amount: parseInt(amount),
+                type,
+            }
+        });
+        // alert('Buy successful' + amount);
     }
 
     handleSocketServer = () => {
-        this.client.joinOrCreate('my_room', this.user).then(room => this.initChart(room));
+        this.client.joinOrCreate('my_room', this.user).then(room => {
+            this.room = room;
+            this.initChart(room)
+        });
     };
 
     componentDidMount() {

@@ -25,7 +25,7 @@ export const CircleBtn = ({
             style
         ]}
             onPress={onPress}
-            activeOpacity={0.8}
+            activeOpacity={onPress? 0.8: 1}
         >
             <Text style={[{ color }, textStyle]}>{number}</Text>
         </TouchableOpacity>

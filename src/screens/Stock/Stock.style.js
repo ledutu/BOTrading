@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
-import { ApplicationStyles, Metrics } from '../../themes';
+import { ApplicationStyles, Colors, Metrics } from '../../themes';
 const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
@@ -9,15 +9,13 @@ const styles = StyleSheet.create({
         backgroundColor: "#F5FCFF"
     },
     chartStyle: {
-        width, 
-        height: height/2,
-        margin: 5,
-        ...ApplicationStyles.border,
-        borderRadius: Metrics.radius,
+        width,
+        height: height / 2,
+        backgroundColor: Colors.white,
         padding: 5,
     },
     circleButtonView: {
-        ...ApplicationStyles.flexRowCenterMid
+        ...ApplicationStyles.flexRowCenterMid,
     }
 });
 
